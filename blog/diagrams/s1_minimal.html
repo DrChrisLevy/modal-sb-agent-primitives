@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content="Devin artifact kit" />
+    <meta name="artifact-built-at" content="2026-11-15T12:49:09Z" />
+    <title>Artifact</title>
+    <script>
+      // A network that blocks the kit's host (or hands back a block page for it) leaves the page blank; say so instead. Styled like the
+      // ds error alert card (ChatAlertCard variant="error", no bar), values hardcoded: the kit CSS is what failed.
+      function artifactKitFailed() {
+        function show() {
+          if (document.getElementById("artifact-kit-notice")) return;
+          document.documentElement.style.colorScheme = "light";
+          var notice = document.createElement("div");
+          notice.id = "artifact-kit-notice";
+          notice.setAttribute("role", "alert");
+          notice.style.cssText =
+            "box-sizing:border-box;display:flex;align-items:flex-start;gap:6px;max-width:960px;margin:0 auto;padding:32px 24px 0;" +
+            "font:13px/18px Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:-0.005em;color:rgb(25 25 25)";
+          var ns = "http://www.w3.org/2000/svg";
+          var icon = document.createElementNS(ns, "svg");
+          icon.setAttribute("viewBox", "0 0 24 24");
+          icon.setAttribute("fill", "rgb(245 59 58)");
+          icon.setAttribute("aria-hidden", "true");
+          icon.style.cssText = "width:14px;height:14px;flex-shrink:0;margin-top:2px";
+          var path = document.createElementNS(ns, "path");
+          path.setAttribute("fill-rule", "evenodd");
+          path.setAttribute("clip-rule", "evenodd");
+          path.setAttribute(
+            "d",
+            "M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15ZM12 7C11.5858 7 11.25 7.33579 11.25 7.75V12.25C11.25 12.6642 11.5858 13 12 13C12.4142 13 12.75 12.6642 12.75 12.25V7.75C12.75 7.33579 12.4142 7 12 7Z"
+          );
+          icon.appendChild(path);
+          var text = document.createElement("span");
+          text.textContent = "This page could not load Devin's artifact kit.";
+          notice.appendChild(icon);
+          notice.appendChild(text);
+          document.body.prepend(notice);
+        }
+        if (document.body) show();
+        else document.addEventListener("DOMContentLoaded", show);
+      }
+    </script>
+    <link rel="stylesheet" href="https://static.devin.ai/artifact-kit/cc8965d841fb2ec5/ds-kit.css" onerror="artifactKitFailed()" />
+    <style>
+    .mt-1 {
+        margin-top: 0.25rem
+    }
+    .mt-2 {
+        margin-top: 0.5rem
+    }
+    .flex {
+        display: flex
+    }
+    .w-full {
+        width: 100%
+    }
+    .flex-1 {
+        flex: 1 1 0%
+    }
+    .flex-col {
+        flex-direction: column
+    }
+    .items-center {
+        align-items: center
+    }
+    .items-stretch {
+        align-items: stretch
+    }
+    .justify-center {
+        justify-content: center
+    }
+    .gap-2 {
+        gap: 0.5rem
+    }
+    .rounded-xl {
+        border-radius: 0.75rem
+    }
+    .border-2 {
+        border-width: 2px
+    }
+    .border-dashed {
+        border-style: dashed
+    }
+    .border-green {
+        border-color: rgb(var(--text-green))
+    }
+    .border-red {
+        border-color: rgb(var(--text-red))
+    }
+    .bg-tint-green {
+        background-color: rgb(var(--tint-green))
+    }
+    .bg-tint-red {
+        background-color: rgb(var(--tint-red))
+    }
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem
+    }
+    .px-6 {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem
+    }
+    .py-10 {
+        padding-top: 2.5rem;
+        padding-bottom: 2.5rem
+    }
+    .pt-6 {
+        padding-top: 1.5rem
+    }
+    .text-center {
+        text-align: center
+    }
+    .text-\[12px\] {
+        font-size: 12px
+    }
+    .text-\[13px\] {
+        font-size: 13px
+    }
+    .text-\[14px\] {
+        font-size: 14px
+    }
+    .text-\[20px\] {
+        font-size: 20px
+    }
+    .font-semibold {
+        font-weight: 600
+    }
+    .uppercase {
+        text-transform: uppercase
+    }
+    .tracking-wide {
+        letter-spacing: 0.025em
+    }
+    .text-primary {
+        color: rgb(var(--text-primary))
+    }
+    .text-secondary {
+        color: rgb(var(--text-secondary))
+    }
+    @keyframes enter {
+        from {
+            opacity: var(--tw-enter-opacity, 1);
+            transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0))
+        }
+    }
+    @keyframes exit {
+        to {
+            opacity: var(--tw-exit-opacity, 1);
+            transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0))
+        }
+    }
+    </style>
+  </head>
+  <body>
+    <script src="https://static.devin.ai/artifact-kit/cc8965d841fb2ec5/ds-kit.js" onerror="artifactKitFailed()"></script>
+    <script>
+      if (!window.DS) artifactKitFailed();
+    </script>
+    <main data-artifact-shell class="mx-auto flex max-w-[960px] flex-col gap-6 px-6 py-8">
+<div id="root"></div>
+<script>DSRun("\nconst Side = ({ label, title, sub, dashed, kind }) => (\n  React.createElement('div', { className: \"flex flex-col items-center gap-2 flex-1\"    ,}\n    , React.createElement('div', { className: \"text-[12px] uppercase tracking-wide text-secondary\"   ,}, label)\n    , React.createElement('div', { className: \"w-full rounded-xl border-2 px-6 py-10 text-center \" + (dashed ? \"border-dashed \" : \"\") + (kind === \"trusted\" ? \"border-green bg-tint-green\" : \"border-red bg-tint-red\"),}\n      , React.createElement('div', { className: \"text-[20px] font-semibold text-primary\"  ,}, title)\n      , React.createElement('div', { className: \"text-[14px] text-secondary mt-1\"  ,}, sub)\n    )\n  )\n);\n\nconst Arrows = () => (\n  React.createElement('div', { className: \"flex flex-col items-center justify-center gap-2 px-4 pt-6 text-secondary\"       ,}\n    , React.createElement('div', { className: \"text-[13px]\",}, \"tool call\" )\n    , React.createElement('svg', { width: \"120\", height: \"14\", viewBox: \"0 0 120 14\"   ,}, React.createElement('path', { d: \"M2 7h110M106 2l6 5-6 5\"    , fill: \"none\", stroke: \"currentColor\", strokeWidth: \"2\",} ))\n    , React.createElement('svg', { width: \"120\", height: \"14\", viewBox: \"0 0 120 14\"   ,}, React.createElement('path', { d: \"M118 7H8M14 2 8 7l6 5\"     , fill: \"none\", stroke: \"currentColor\", strokeWidth: \"2\",} ))\n    , React.createElement('div', { className: \"text-[13px]\",}, \"result\")\n  )\n);\n\nfunction Page() {\n  return (\n    React.createElement(PageLayout, { title: \"The agent loop runs in your application and its tools run in a Modal Sandbox\"              ,}\n      , React.createElement('div', { className: \"flex items-stretch mt-2\"  ,}\n        , React.createElement(Side, { label: \"Your application (laptop, server, container)\"    , title: \"Agent loop\" , sub: \"model calls, history, model API token\"     , kind: \"trusted\",} )\n        , React.createElement(Arrows, null )\n        , React.createElement(Side, { label: \"Modal Sandbox\" , title: \"Tools\", sub: \"bash, files, /workspace\"  , kind: \"untrusted\", dashed: true,} )\n      )\n    )\n  );\n}\n\nrender(React.createElement(Page, null ));\n")</script>
+    </main>
+  </body>
+</html>
