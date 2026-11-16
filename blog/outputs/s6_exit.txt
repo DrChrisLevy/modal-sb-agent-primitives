@@ -1,26 +1,18 @@
-bash: exit=0
-total 1
-drwxr-xr-x 1 root root  60 Nov 16 23:26 .
-drwxr-xr-x 1 root root 100 Nov 16 23:26 ..
--rw-r--r-- 1 root root  32 Nov 16 23:26 add.py
-
---- add.py ---
+read_file: exit=0
 def add(a, b):
     return a - b
-
 write_file: exit=0
 32
-
 bash: exit=0
-All add() tests passed.
+All tests passed.
 
 Fixed `add.py` so `add(a, b)` returns `a + b`.
 
-Tested with positive, negative, and floating-point numbers—all tests passed.
+Tested with integers, negative numbers, and floats using Python—all tests passed.
 PASS: exit snapshot source fixed add.py and terminated (snapshot-demo)
-start: 6.3s
+start: 5.2s
 
 def add(a, b):
     return a + b
 PASS: exit snapshot restored the fixed add.py in a separate invocation
-resume: 2.0s
+resume: 1.9s

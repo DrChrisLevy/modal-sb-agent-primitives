@@ -1,2 +1,2 @@
 PASS: Sidecar filesystem snapshot preserved the tools workspace
-sidecar: 5.9s
+sidecar: 6.0s

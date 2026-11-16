@@ -1,6 +1,7 @@
 """Record the post's output-marked examples in order, without publishing secrets."""
 
 import argparse
+import json
 import os
 from pathlib import Path
 import re
@@ -60,7 +61,7 @@ def recording_plan(post):
     return plan
 
 
-def clean_output(raw, environment):
+def normalized_output(raw, environment):
     text = ANSI.sub("", raw)
     host = urlsplit(environment.get("ENDPOINT_URL", "").strip("\"' \n\t")).hostname
     token = environment.get("MODAL_PROXY_TOKEN", "").strip("\"' \n\t")
@@ -81,9 +82,141 @@ def clean_output(raw, environment):
             lines.append(line)
     while lines and not lines[-1]:
         lines.pop()
-    if len(lines) > 40:
-        lines = lines[:19] + ["…"] + lines[-20:]
     return "\n".join(lines) + ("\n" if lines else "")
+
+
+TOOL = re.compile(r"^[\w.-]+: exit=-?\d+$")
+STATUS = re.compile(r"^(?:Sandbox(?::| stopped| and .+ stopped)|PASS:|[\w-]+: \d+(?:\.\d+)?s$)")
+
+
+def sections(text):
+    result, body, kind, header = [], [], "answer", ""
+
+    def flush():
+        nonlocal body
+        while body and not body[-1]:
+            body.pop()
+        while body and not body[0]:
+            body.pop(0)
+        if kind == "agent":
+            traceback = any(line.startswith("Traceback (") for line in body)
+            boundary = len(body)
+            for i, line in enumerate(body):
+                if not i or not line or line[0].isspace():
+                    continue
+                prose = re.match(r"(?:[-*] |#{1,6} |\*\*|[A-Za-z].*[ .`])", line)
+                diagnostic = re.match(r"(?:===|URL:|Status:|Final URL:|HTTP |\w*(?:Error|Exception):|During handling|The above exception|Traceback)", line)
+                if prose and not diagnostic and (not body[i - 1] or traceback):
+                    boundary = i
+                    break
+            result.append(("tool", header, body[:boundary]))
+            if boundary < len(body):
+                result.append(("answer", "", body[boundary:]))
+        elif header or body:
+            result.append((kind, header, body))
+        body = []
+
+    for line in text.splitlines():
+        if STATUS.match(line):
+            flush()
+            result.append(("status", "", [line]))
+            kind, header = "answer", ""
+        elif TOOL.fullmatch(line) or line.startswith(("$ ", "← ", "→ ")):
+            flush()
+            kind, header = ("agent" if TOOL.fullmatch(line) else "tool"), line
+        elif line.startswith("> build ·"):
+            flush()
+            kind, header = "answer", ""
+        else:
+            body.append(line)
+    flush()
+    return [(kind, header, list(trim_blank_edges(body))) for kind, header, body in result]
+
+
+def trim_blank_edges(lines):
+    start, end = 0, len(lines)
+    while start < end and not lines[start]:
+        start += 1
+    while end > start and not lines[end - 1]:
+        end -= 1
+    return lines[start:end]
+
+
+def trim_output(text):
+    parts = [(kind, header, compact_answer(body) if kind == "answer" else body)
+             for kind, header, body in sections(text)]
+    limits = [min(6 if kind == "tool" else 20, len(body)) for kind, _, body in parts]
+
+    def render():
+        lines = []
+        for (kind, header, body), limit in zip(parts, limits):
+            if kind == "answer" and lines and lines[-1]:
+                lines.append("")
+            if header:
+                lines.append(header)
+            lines.extend(body if kind == "status" else body[:limit])
+            if kind != "status" and len(body) > limit:
+                lines.append("…")
+        return lines
+
+    while len(render()) > 30:
+        candidates = [i for i, (kind, _, _) in enumerate(parts) if kind == "tool" and limits[i] > 1]
+        if not candidates:
+            break
+        limits[max(candidates, key=lambda i: limits[i])] -= 1
+    lines = render()
+    return "\n".join(lines) + ("\n" if lines else "")
+
+
+def compact_answer(lines):
+    lines = list(lines)
+    while len(lines) > 20:
+        blocks, i = [], 0
+        while i < len(lines):
+            fence = re.fullmatch(r"\s*(`{3,}|~{3,})[^`~]*", lines[i])
+            i += 1
+            if not fence:
+                continue
+            start = i
+            while i < len(lines) and not re.fullmatch(r"\s*" + re.escape(fence[1][0]) + r"{" + str(len(fence[1])) + r",}\s*", lines[i]):
+                i += 1
+            if i < len(lines):
+                body = lines[start:i]
+                kept = body[:-1] if body and body[-1] == "…" else body
+                if len(kept) > 1:
+                    blocks.append((start, i, kept))
+                i += 1
+        if not blocks:
+            break
+        start, end, kept = max(blocks, key=lambda block: len(block[2]))
+        lines[start:end] = kept[:-1] + ["…"]
+    return lines
+
+
+def clean_output(raw, environment):
+    return trim_output(normalized_output(raw, environment))
+
+
+def sample_output(captures, environment):
+    samples = [clean_output(capture, environment).rstrip("\n") for capture in captures]
+    text = "\n\n".join(sample for sample in samples if sample)
+    return text + "\n" if text else ""
+
+
+def retrim(post, root, only=None):
+    names = [name for name, _ in recording_plan(post) if name]
+    if only and only not in names:
+        raise ValueError("unknown --only output name")
+    for name in names:
+        if only and name != only:
+            continue
+        path = output_path(root, name)
+        captures = json.loads((path.parent / "raw" / f"{name}.json").read_text(encoding="utf-8"))
+        if not isinstance(captures, list) or not captures or not all(isinstance(capture, str) for capture in captures):
+            raise ValueError("invalid raw capture")
+        text = sample_output(captures, os.environ)
+        path.write_text(text, encoding="utf-8")
+        print(f"Retrimmed {name}: {len(text.splitlines())} lines", flush=True)
 
 
 def record(post, root, only=None):
@@ -104,9 +237,12 @@ def record(post, root, only=None):
                 raise ValueError(f"{name or 'prerequisite'} failed (exit {result.returncode}):\n"
                                  + clean_output(result.stdout, environment))
         if name:
-            text = clean_output("\n".join(combined), environment)
+            text = sample_output(combined, environment)
             path = output_path(root, name)
             path.parent.mkdir(parents=True, exist_ok=True)
+            raw = path.parent / "raw" / f"{name}.json"
+            raw.parent.mkdir(exist_ok=True)
+            raw.write_text(json.dumps(combined, ensure_ascii=False) + "\n", encoding="utf-8")
             path.write_text(text, encoding="utf-8")
             print(f"Recorded {name}: {len(text.splitlines())} lines", flush=True)
             if only:
@@ -117,13 +253,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--post", default=os.environ.get("BLOG_POST_PATH"))
     parser.add_argument("--only", metavar="NAME")
+    parser.add_argument("--retrim", action="store_true", help="regenerate samples from ignored raw captures without running commands")
     args = parser.parse_args()
     if not args.post:
         parser.error("set BLOG_POST_PATH or pass --post")
     if not os.environ.get("ENDPOINT_URL") or not os.environ.get("MODAL_PROXY_TOKEN"):
         parser.error("source env.sh before recording")
     try:
-        record(Path(args.post).expanduser().read_text(encoding="utf-8"), Path(__file__).resolve().parent, args.only)
+        operation = retrim if args.retrim else record
+        operation(Path(args.post).expanduser().read_text(encoding="utf-8"), Path(__file__).resolve().parent, args.only)
     except ValueError as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1

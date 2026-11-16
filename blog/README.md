@@ -66,10 +66,13 @@ After an example's bash block, add `Example output:`, then `<!-- output: NAME --
 source env.sh
 uv run python blog/record.py              # real Modal runs, in post order
 uv run python blog/record.py --only NAME  # re-record one block and its Secret prerequisite
+uv run python blog/record.py --retrim    # offline: regenerate samples from saved raw captures
 uv run python blog/sync.py
 ```
 
-Recordings live in `blog/outputs/NAME.txt`. Snapshot start/resume belong in the same command block. The recorder runs unmarked Secret-creation prerequisites, but not endpoint creation. It merges stdout/stderr, strips ANSI and Modal progress noise, and caps samples at 40 lines with `…` when shortened. It refuses output containing the model endpoint host, model token, or a home path, even if truncation would hide it. Review each sample against the surrounding prose before syncing. Sync expands output fences when necessary and `--check` rejects missing or stale recordings. Neither recording nor syncing edits prose.
+Recordings live in `blog/outputs/NAME.txt`. Full, untrimmed command captures are saved as JSON arrays in the gitignored `blog/outputs/raw/NAME.json`, after the same secret/path checks. Keep these local files to revise trimming without another Modal run; `--retrim` also accepts `--only NAME` and still needs the environment for leak checks. Missing raws fail rather than rerunning commands.
+
+Snapshot start/resume belong in the same command block. The recorder runs unmarked Secret-creation prerequisites, but not endpoint creation. It merges stdout/stderr and strips ANSI and Modal progress noise. Tool results retain at most six complete lines, shortened further when needed to aim for 30 lines per sample; final answers retain up to 20 lines. Answers already within that limit are unchanged. Longer answers first abbreviate fenced data (keeping closing fences and surrounding conclusions), then cap any remaining excess. Omitted content ends with `…`, never a sliced line. Sandbox lifecycle, PASS, and timing lines are retained. The plain-text CLI format uses blank lines to separate tool results from answers, with separate handling for tracebacks and OpenCode's buffered stdout/stderr. It refuses output containing the model endpoint host, model token, or a home path, even if trimming would hide it. Review both raws and samples against the surrounding prose before syncing. Sync expands output fences when necessary and `--check` rejects missing or stale recordings. Neither recording nor syncing edits prose.
 
 ## Check everything
 

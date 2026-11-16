@@ -1,29 +1,19 @@
-Sandbox: sb-01M7KB0HX879T7DZPZAB5PA9FA
+Sandbox: sb-01M7KB92PJ58PVNSYNHNFYXPZ0
 bash: exit=127
 bash: line 1: curl: command not found
-
 bash: exit=127
 bash: line 1: curl: command not found
-
 bash: exit=0
 BLOG_DEMO_KEY is not set
-
 bash: exit=0
-HTTP 200 OK
-Server: BaseHTTP/0.6 Python/3.13.18
-Date: Mon, 16 Nov 2026 23:27:58 GMT
-Content-Type: application/json
-Content-Length: 220
-
-{
-  "headers": {
+Status: 200
 …
-    ~~~~~~~~~~~~~~~^^
-  File "/usr/local/lib/python3.13/http/client.py", line 1051, in connect
-    self.sock = self._create_connection(
-                ~~~~~~~~~~~~~~~~~~~~~~~^
-        (self.
-- `http://key-proxy:8080/headers` — **200 OK**
+bash: exit=1
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.13/urllib/request.py", line 1331, in do_open
+…
+
+- **`http://key-proxy:8080/headers`** — **200 OK**
   ```json
   {
     "headers": {
@@ -35,6 +25,6 @@ Content-Length: 220
     }
   }
   ```
-- `https://example.com` — **Failed:** network unreachable (`OSError: [Errno 101]`).
-- `BLOG_DEMO_KEY` — **Not set**.
-Sandbox stopped: sb-01M7KB0HX879T7DZPZAB5PA9FA; exit=137
+- **`https://example.com`** — Failed: `Network is unreachable`.
+- **`BLOG_DEMO_KEY`** — Not set.
+Sandbox stopped: sb-01M7KB92PJ58PVNSYNHNFYXPZ0; exit=137

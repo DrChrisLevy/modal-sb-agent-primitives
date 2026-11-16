@@ -1,24 +1,19 @@
-Sandbox: sb-01M7KAWJPC3W7SB0K0PD3XH54M
+Sandbox: sb-01M7KB8H1T1FZ0W5YRJ0XKD58Y
 bash: exit=0
-URL: https://pypi.org
-  status: 200
-  final_url: https://pypi.org
-  content_type: text/html; charset=UTF-8
-  bytes: 27885
-  preview: b'<!DOCTYPE html>\n<html lang="en" dir="ltr">\n  <head>\n    <meta charset="utf-8">\n    <meta http-equiv="X-UA-Compatible" content="IE=edge">\n    <meta name="viewpor'
-URL: http://pypi.org
-  error: URLError: <urlopen error [Errno 101] Network is unreachable>
-URL: https://example.com
-  error: URLError: <urlopen error [Errno 104] Connection reset by peer>
-URL: https://1.1.1.1/cdn-cgi/trace
-  error: URLError: <urlopen error [Errno 104] Connection reset by peer>
+=== https://pypi.org ===
+status: 200
+final_url: https://pypi.org
+content_type: text/html; charset=UTF-8
+body_preview: '<!DOCTYPE html>\n<html lang="en" dir="ltr">\n  <head>\n    <meta charset="utf-8">\n    <meta http-equiv="X-UA-Compatible" content="IE=edge">\n    <meta name="viewport" content="width=device-width, initial-scale=1">\n    <meta name="defaultLanguage" content="en">\n    <meta name="availableLanguages"\n       '
+=== http://pypi.org ===
+…
 
-Fetched with Python `urllib.request.urlopen(..., timeout=5)`:
+Fetched using Python `urllib` with a **5-second timeout**:
 
 | URL | Result |
 |---|---|
-| `https://pypi.org` | **200 OK** — HTML, 27,885 bytes; final URL unchanged |
-| `http://pypi.org` | **Failed** — `URLError: [Errno 101] Network is unreachable` |
-| `https://example.com` | **Failed** — `URLError: [Errno 104] Connection reset by peer` |
-| `https://1.1.1.1/cdn-cgi/trace` | **Failed** — `URLError: [Errno 104] Connection reset by peer` |
-Sandbox stopped: sb-01M7KAWJPC3W7SB0K0PD3XH54M; exit=137
+| `https://pypi.org` | **200 OK**, `text/html; charset=UTF-8`; valid HTML returned |
+| `http://pypi.org` | **URLError:** `[Errno 101] Network is unreachable` |
+| `https://example.com` | **URLError:** `[Errno 104] Connection reset by peer` |
+| `https://1.1.1.1/cdn-cgi/trace` | **URLError:** `[Errno 104] Connection reset by peer` |
+Sandbox stopped: sb-01M7KB8H1T1FZ0W5YRJ0XKD58Y; exit=137

@@ -1,17 +1,16 @@
-Sandbox: sb-01M7KAW8J8DRSR93NAPZ5G9GTJ
+Sandbox: sb-01M7KB87M2W61NRJKV1TA4MJJT
 write_file: exit=0
-494
-
+459
 bash: exit=0
-URLError: <urlopen error [Errno -3] Temporary failure in name resolution>
+Failed to fetch https://example.com: <urlopen error [Errno -3] Temporary failure in name resolution>
 
-Created and ran `/workspace/fetch_example.py`, which attempted to fetch `https://example.com` using Python’s `urllib` with a **5-second timeout**.
+Wrote and ran `/workspace/fetch_example.py`, which attempted the HTTPS request with a **5-second timeout**.
 
-The request failed before receiving an HTTP response:
+The request failed before connecting due to DNS resolution:
 
 ```text
-URLError: <urlopen error [Errno -3] Temporary failure in name resolution>
+Failed to fetch https://example.com: <urlopen error [Errno -3] Temporary failure in name resolution>
 ```
 
-This indicates a **DNS resolution failure** in the environment, rather than an HTTP error or request timeout. The script caught the exception and exited successfully.
-Sandbox stopped: sb-01M7KAW8J8DRSR93NAPZ5G9GTJ; exit=137
+So no HTTP response was received.
+Sandbox stopped: sb-01M7KB87M2W61NRJKV1TA4MJJT; exit=137
