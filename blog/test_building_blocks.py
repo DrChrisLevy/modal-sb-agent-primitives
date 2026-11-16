@@ -1,6 +1,5 @@
 from contextlib import redirect_stdout
 from io import StringIO
-import json
 from pathlib import Path
 import sys
 import unittest
@@ -11,61 +10,42 @@ import s7_building_blocks as blocks
 
 
 class BuildingBlockTests(unittest.TestCase):
-    def test_named_running_sandbox_is_reused(self):
-        with patch.object(blocks.modal.Sandbox, "from_name", return_value=Mock()) as lookup, \
-             patch.object(blocks.modal.Sandbox, "create") as create:
-            self.assertIs(blocks.get_sandbox("chat-a"), lookup.return_value)
-        lookup.assert_called_once_with(blocks.APP_NAME, "chat-a")
-        create.assert_not_called()
+    def test_server_uses_connect_token_and_stops_sandbox(self):
+        sandbox = Mock()
+        sandbox.create_connect_token.return_value = Mock(url="https://sandbox.example", token="test-token")
+        response = MagicMock()
+        response.__enter__.return_value.status = 200
+        response.__enter__.return_value.read.return_value = b"Directory listing for /workspace"
+        output = StringIO()
+        with patch.object(blocks, "app") as app, patch.object(blocks, "base_image") as image, \
+             patch.object(blocks, "wait_for") as wait_for, \
+             patch.object(blocks.modal.Sandbox, "create", return_value=sandbox) as create, \
+             patch.object(blocks.urllib.request, "urlopen", return_value=response) as urlopen, redirect_stdout(output):
+            blocks.server()
+        create.assert_called_once_with("python", "-m", "http.server", "8080",
+            app=app.return_value, image=image.return_value, workdir="/workspace")
+        wait_for.assert_called_once_with(sandbox, "127.0.0.1", 8080)
+        sandbox.create_connect_token.assert_called_once_with(port=8080)
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.full_url, "https://sandbox.example")
+        self.assertEqual(request.get_header("Authorization"), "Bearer test-token")
+        self.assertEqual(urlopen.call_args.kwargs, {"timeout": 30})
+        sandbox.terminate.assert_called_once_with(wait=True)
+        self.assertIn("PASS: app reached the Sandbox server with a Connect Token", output.getvalue())
 
-    def test_missing_name_creates_fresh_or_restores_with_same_name(self):
-        for store in ({}, {"s7/chat-a": "sb-old"}):
-            with self.subTest(store=store):
-                restoring = bool(store)
-                with patch.object(blocks, "app"), patch.object(blocks, "base_image") as base, \
-                     patch.object(blocks, "sessions", return_value=store), \
-                     patch.object(blocks.modal.Sandbox, "from_name", side_effect=blocks.modal.exception.NotFoundError), \
-                     patch.object(blocks.modal.Sandbox, "from_id") as previous, \
-                     patch.object(blocks.modal.Sandbox, "create") as create:
-                    sandbox = blocks.get_sandbox("chat-a")
-                self.assertEqual(create.call_args.kwargs["name"], "chat-a")
-                self.assertEqual(store["s7/chat-a"], sandbox.object_id)
-                if restoring:
-                    previous.assert_called_once_with("sb-old")
-                    previous.return_value._experimental_get_exit_snapshot.assert_called_once_with(timeout=180)
-                    self.assertIs(create.call_args.kwargs["image"], previous.return_value._experimental_get_exit_snapshot.return_value)
-                else:
-                    previous.assert_not_called()
-                    self.assertIs(create.call_args.kwargs["image"], base.return_value)
-
-    def test_turn_loads_history_and_saves_only_its_conversation_file(self):
-        history = [{"role": "user", "content": "apples"}]
-        for data, expected in (([json.dumps(history).encode()], history), (FileNotFoundError(), None)):
-            with self.subTest(data=data):
-                volume = MagicMock()
-                if isinstance(data, Exception):
-                    volume.read_file.side_effect = data
-                else:
-                    volume.read_file.return_value = data
-                result = [{"role": "assistant", "content": "apples"}]
-                with patch.object(blocks, "get_sandbox") as sandbox, \
-                     patch.object(blocks, "histories", return_value=volume), \
-                     patch.object(blocks, "client_and_model", return_value=(MagicMock(), "model")), \
-                     patch.object(blocks, "run", return_value=result) as run:
-                    self.assertEqual(blocks.turn("chat-a", "question"), "apples")
-                self.assertEqual(run.call_args.kwargs["messages"], expected)
-                volume.read_file.assert_called_once_with("/history/chat-a.json")
-                upload = volume.batch_upload.return_value.__enter__.return_value.put_file
-                payload, path = upload.call_args.args
-                self.assertEqual(path, "/history/chat-a.json")
-                self.assertEqual(json.loads(payload.getvalue()), result)
-
-    def test_failed_turn_does_not_save_incomplete_history(self):
-        volume = MagicMock()
-        volume.read_file.side_effect = FileNotFoundError
-        with patch.object(blocks, "get_sandbox"), patch.object(blocks, "histories", return_value=volume), \
-             patch.object(blocks, "client_and_model", return_value=(MagicMock(), "model")), \
-             patch.object(blocks, "run", side_effect=RuntimeError):
-            with self.assertRaises(RuntimeError):
-                blocks.turn("chat-b", "question")
-        volume.batch_upload.assert_not_called()
+    def test_server_stops_sandbox_on_request_error_or_invalid_response(self):
+        for error, status, body in ((TimeoutError(), 200, b"Directory listing"),
+                                    (None, 403, b"Directory listing"), (None, 200, b"")):
+            with self.subTest(error=error, status=status, body=body):
+                sandbox = Mock()
+                sandbox.create_connect_token.return_value = Mock(url="https://sandbox.example", token="test-token")
+                response = MagicMock()
+                response.__enter__.return_value.status = status
+                response.__enter__.return_value.read.return_value = body
+                with patch.object(blocks, "app"), patch.object(blocks, "base_image"), \
+                     patch.object(blocks, "wait_for"), \
+                     patch.object(blocks.modal.Sandbox, "create", return_value=sandbox), \
+                     patch.object(blocks.urllib.request, "urlopen", return_value=response, side_effect=error):
+                    with self.assertRaises(TimeoutError if error else AssertionError):
+                        blocks.server()
+                sandbox.terminate.assert_called_once_with(wait=True)

@@ -44,13 +44,6 @@ uv run python blog/steps/s6_snapshots.py resume snapshot-demo
 uv run python blog/steps/s6_snapshots.py sidecar
 uv run python blog/steps/s6_snapshots.py memory
 uv run python blog/steps/s7_building_blocks.py server
-uv run python blog/steps/s7_building_blocks.py turn chat-a "Create notes.txt containing 'apples'."
-uv run python blog/steps/s7_building_blocks.py turn chat-b "Create notes.txt containing 'bananas'."
-uv run python blog/steps/s7_building_blocks.py turn chat-a "What did you put in notes.txt?"
-uv run python blog/steps/s7_building_blocks.py turn chat-b "What did you put in notes.txt?"
-uv run python blog/steps/s7_building_blocks.py stop chat-a
-uv run python blog/steps/s7_building_blocks.py turn chat-a "Read notes.txt and report its contents."
-uv run python blog/steps/s7_building_blocks.py cleanup
 ```
 
 The Sidecar step pre-builds its proxy image and waits for the listener before starting the agent. It uses the same fake named Secret above; stopping the Sandbox also stops its Sidecar.
