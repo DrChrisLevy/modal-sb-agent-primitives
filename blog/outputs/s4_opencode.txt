@@ -1,0 +1,40 @@
+Created and ran `fizzbuzz.py`:
+
+```text
+1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+8
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz
+```
+…
+Created file successfully: fizzbuzz.py
+> build · moonshotai/Kimi-K3.1-Pro
+$ python3 fizzbuzz.py
+1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+8
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz
+> build · moonshotai/Kimi-K3.1-Pro
+Sandbox and Sidecar stopped

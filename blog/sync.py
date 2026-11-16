@@ -1,4 +1,4 @@
-"""Copy executable sources into Markdown fences; --check never writes."""
+"""Copy executable sources and recorded output into Markdown fences; --check never writes."""
 
 import argparse
 import os
@@ -6,9 +6,23 @@ from pathlib import Path
 import re
 import sys
 
-MARKER = re.compile(r"^<!-- snippet: ([^\s]+) -->\s*$")
+MARKER = re.compile(r"^<!-- (snippet|output): ([^\s]+) -->\s*$")
 REGION = re.compile(r"^\s*# region: (\S+)\s*$")
 END = re.compile(r"^\s*# endregion\s*$")
+
+
+def output_path(root: Path, name: str) -> Path:
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", name):
+        raise ValueError("invalid output name")
+    path = (root / "outputs" / f"{name}.txt").resolve()
+    if not path.is_relative_to(root.resolve()):
+        raise ValueError("output outside blog")
+    return path
+
+
+def recorded_output(root: Path, name: str) -> str:
+    text = output_path(root, name).read_text(encoding="utf-8")
+    return text + "\n" if text and not text.endswith("\n") else text
 
 
 def snippet(root: Path, target: str) -> str:
@@ -47,24 +61,28 @@ def render(post: str, root: Path) -> str:
         i += 1
         if not (match := MARKER.fullmatch(line)):
             continue
-        target = match[1]
+        kind, target = match[1], match[2]
         while i < len(lines) and not lines[i].strip():
             result.append(lines[i])
             i += 1
         if i == len(lines) or not (fence := re.fullmatch(r"(`{3,}|~{3,})[^\n]*\n?", lines[i])):
             raise ValueError(f"missing fenced block after {target}")
         delimiter = fence[1]
-        code = snippet(root, target)
-        if any(re.fullmatch(re.escape(delimiter[0]) + r"{" + str(len(delimiter)) + r",}\s*", row)
+        code = snippet(root, target) if kind == "snippet" else recorded_output(root, target)
+        replacement = delimiter
+        if kind == "output":
+            runs = re.findall(re.escape(delimiter[0]) + r"+", code)
+            replacement = delimiter[0] * max(len(delimiter), max(map(len, runs), default=0) + 1)
+        elif any(re.fullmatch(re.escape(delimiter[0]) + r"{" + str(len(delimiter)) + r",}\s*", row)
                for row in code.splitlines()):
             raise ValueError(f"use a longer fence for {target}")
-        result.extend([lines[i], code])
+        result.extend([replacement + lines[i][len(delimiter):], code])
         i += 1
         while i < len(lines) and not re.fullmatch(re.escape(delimiter[0]) + r"{" + str(len(delimiter)) + r",}\s*", lines[i]):
             i += 1
         if i == len(lines):
             raise ValueError(f"unclosed fenced block after {target}")
-        result.append(lines[i])
+        result.append(re.sub(r"^[`~]+", replacement, lines[i]) if replacement != delimiter else lines[i])
         i += 1
     return "".join(result)
 

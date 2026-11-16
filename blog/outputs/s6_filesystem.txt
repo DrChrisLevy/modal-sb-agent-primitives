@@ -1,0 +1,2 @@
+PASS: filesystem snapshot imports installed package with network blocked
+filesystem: 3.7s

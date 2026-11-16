@@ -30,6 +30,42 @@ class SyncTests(unittest.TestCase):
         self.assertEqual(snippet(self.root, "step.py#empty"), "")
         self.assertEqual(render("No snippets\n", self.root), "No snippets\n")
 
+    def test_recorded_output_and_longer_fence_preserve_surroundings(self):
+        (self.root / "outputs").mkdir()
+        (self.root / "outputs/demo.txt").write_text("Actual output\n```python\nprint('ok')\n```\n")
+        prefix = "---\ntitle: Example\n---\n![alt](/image.png)\nExample output:\n"
+        post = prefix + "<!-- output: demo -->\n```text\nstale\n```\nProse\n"
+        updated = render(post, self.root)
+        self.assertEqual(updated, prefix + "<!-- output: demo -->\n````text\nActual output\n```python\nprint('ok')\n```\n````\nProse\n")
+        self.assertEqual(render(updated, self.root), updated)
+        (self.root / "outputs/demo.txt").write_text("")
+        self.assertIn("````text\n````\n", render(updated, self.root))
+
+    def test_output_missing_invalid_or_unclosed(self):
+        for name in ("missing", "../outside", "/absolute"):
+            with self.subTest(name=name), self.assertRaises((ValueError, OSError)):
+                render(f"<!-- output: {name} -->\n```text\nold\n```\n", self.root)
+        with self.assertRaises(ValueError):
+            render("<!-- output: demo -->\nnot a fence\n", self.root)
+
+    def test_output_check_rejects_drift_and_missing_files_without_writing(self):
+        script = self.root / "sync.py"
+        script.write_text(Path(__file__).with_name("sync.py").read_text())
+        post = self.root / "article.md"
+        original = "<!-- output: demo -->\n```text\nstale\n```\n"
+        post.write_text(original)
+        (self.root / "outputs").mkdir()
+        output = self.root / "outputs/demo.txt"
+        for exists in (False, True):
+            if exists:
+                output.write_text("actual\n")
+            result = subprocess.run([sys.executable, str(script), "--post", str(post), "--check"], capture_output=True)
+            self.assertEqual(result.returncode, 1)
+            self.assertEqual(post.read_text(), original)
+        subprocess.run([sys.executable, str(script), "--post", str(post)], capture_output=True, check=True)
+        result = subprocess.run([sys.executable, str(script), "--post", str(post), "--check"], capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_missing_sources_regions_and_fences(self):
         for target in ("missing.py", "step.py#missing", "../outside.py"):
             with self.subTest(target=target), self.assertRaises((ValueError, OSError)):

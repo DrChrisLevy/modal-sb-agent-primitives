@@ -1,0 +1,40 @@
+Sandbox: sb-01M7KAWDSBEMCY7VF73NA6V8Y3
+bash: exit=0
+=== https://1.1.1.1/cdn-cgi/trace ===
+Status: 200 OK
+Final URL: https://1.1.1.1/cdn-cgi/trace
+Body:
+fl=352f271
+h=1.1.1.1
+ip=136.70.124.26
+ts=1794871541.000
+visit_scheme=https
+uag=Python-urllib/3.13
+colo=IAD
+sliver=050-tier1
+http=http/1.1
+loc=US
+tls=TLSv1.3
+sni=off
+warp=off
+…
+h=1.1.1.1
+ip=136.70.124.26
+ts=1794871541.000
+visit_scheme=https
+uag=Python-urllib/3.13
+colo=IAD
+sliver=050-tier1
+http=http/1.1
+loc=US
+tls=TLSv1.3
+sni=off
+warp=off
+gateway=off
+rbi=off
+kex=X25519MLKEM768
+```
+
+### `https://example.com`
+**Failed:** `URLError: <urlopen error [Errno 101] Network is unreachable>`
+Sandbox stopped: sb-01M7KAWDSBEMCY7VF73NA6V8Y3; exit=137

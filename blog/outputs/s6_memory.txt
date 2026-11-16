@@ -1,0 +1,2 @@
+PASS: memory snapshot resumed the in-memory counter: 2 -> 3
+memory: 8.1s

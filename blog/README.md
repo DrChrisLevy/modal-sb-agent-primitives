@@ -58,6 +58,19 @@ The OpenCode step installs `@opencode/cli@2.3.0` and ripgrep during the image bu
 
 Both write and `--check` modes need the post's path: set `BLOG_POST_PATH=/path/to/article.md` (for example in your local secrets file) or pass `--post /path/to/article.md` (the CLI option takes precedence). Source paths in snippet markers always resolve relative to this `blog/` directory, not the destination. Sync replaces only marked fence contents; prose, front matter, image links, and unmarked code blocks are left unchanged. `run_all.sh` uses `BLOG_POST_PATH`.
 
+## Record example output
+
+After an example's bash block, add `Example output:`, then `<!-- output: NAME -->` and an empty fenced `text` block. Run from the project root:
+
+```bash
+source env.sh
+uv run python blog/record.py              # real Modal runs, in post order
+uv run python blog/record.py --only NAME  # re-record one block and its Secret prerequisite
+uv run python blog/sync.py
+```
+
+Recordings live in `blog/outputs/NAME.txt`. Snapshot start/resume belong in the same command block. The recorder runs unmarked Secret-creation prerequisites, but not endpoint creation. It merges stdout/stderr, strips ANSI and Modal progress noise, and caps samples at 40 lines with `…` when shortened. It refuses output containing the model endpoint host, model token, or a home path, even if truncation would hide it. Review each sample against the surrounding prose before syncing. Sync expands output fences when necessary and `--check` rejects missing or stale recordings. Neither recording nor syncing edits prose.
+
 ## Check everything
 
 ```bash

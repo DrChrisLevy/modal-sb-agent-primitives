@@ -1,0 +1,2 @@
+PASS: app reached the Sandbox server with a Connect Token
+server: 2.7s

@@ -1,0 +1,15 @@
+Sandbox: sb-01M7KAWXW4Y4C2AT49VN2ENVVZ
+bash: exit=0
+BLOG_DEMO_KEY present: False
+{
+  "headers": {
+    "Accept-Encoding": "identity",
+    "Authorization": "Bearer blog-demo-not-a-real-key",
+    "Host": "httpbin.org",
+    "User-Agent": "Python-urllib/3.13"
+  }
+}
+
+- `BLOG_DEMO_KEY` present: **No**
+- Reflected `Authorization` header: **`Bearer blog-demo-not-a-real-key`**
+Sandbox stopped: sb-01M7KAWXW4Y4C2AT49VN2ENVVZ; exit=137
