@@ -35,7 +35,7 @@ uv run modal secret create blog-demo-key BLOG_DEMO_KEY=blog-demo-not-a-real-key 
 ```bash
 uv run python blog/steps/s1_minimal.py "Create /workspace/fizzbuzz.py for 1-15, run it, and report the output."
 uv run python blog/steps/s2_locked.py "Write and run a small script, then try fetching https://example.com with a short timeout."
-uv run python blog/steps/s3_sidecar.py "Use only Python urllib.request, not curl or shell networking tools. Fetch http://key-proxy:8080/headers and https://example.com separately with a 5-second timeout. Catch exceptions and print only their type and message, without a traceback. Check whether BLOG_DEMO_KEY is set without printing its value. Report each result, including the reflected Authorization header from the proxy."
+uv run python blog/steps/s3_sidecar.py "Fetch http://key-proxy:8080/headers and https://example.com, and check whether BLOG_DEMO_KEY is set."
 uv run python blog/steps/s4_opencode.py "Write fizzbuzz.py for 1..15 and run it"
 uv run python blog/steps/s5_tools_sidecar.py "Fix add.py so add(a, b) returns their sum. Test it with Python."
 uv run python blog/steps/s6_snapshots.py filesystem

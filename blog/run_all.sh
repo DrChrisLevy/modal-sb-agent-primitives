@@ -123,7 +123,7 @@ print("PASS: both credential approaches verified")
 PY
 printf '\n=== Sidecar: locked execution and trusted key proxy ===\n'
 uv run python blog/steps/s3_sidecar.py \
-  'Use only Python urllib.request, not curl or shell networking tools. Fetch http://key-proxy:8080/headers and https://example.com separately with a 5-second timeout. Catch exceptions and print only their type and message, without a traceback. Check whether BLOG_DEMO_KEY is set without printing its value. Report each result, including the reflected Authorization header from the proxy.'
+  'Fetch http://key-proxy:8080/headers and https://example.com, and check whether BLOG_DEMO_KEY is set.'
 
 printf '\n=== Deterministic Sidecar check ===\n'
 uv run python - <<'PY'

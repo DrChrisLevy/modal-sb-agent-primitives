@@ -1,16 +1,30 @@
-Sandbox: sb-01M7KHWH349XYJF7DB3RPQGYPR
+Sandbox: sb-01M7MP75MYM2XBEFYFNFT0HC10
+bash: exit=0
+--- http://key-proxy:8080/headers ---
+HTTP/1.0 200 OK
+Server: BaseHTTP/0.6 Python/3.13.18
+Date: Tue, 17 Nov 2026 12:03:04 GMT
+Content-Type: application/json
+Content-Length: 220
+…
+bash: exit=7
+--- https://example.com ---
+curl: (7) Failed to connect to example.com port 443 after 10 ms: Could not connect to server
 bash: exit=0
 BLOG_DEMO_KEY is not set
 
-Fetching http://key-proxy:8080/headers
-Status: 200
-Reflected Authorization header: Bearer blog-demo-not-a-real-key
-
-Fetching https://example.com
-URLError: <urlopen error [Errno 101] Network is unreachable>
-
-- **BLOG_DEMO_KEY:** Not set.
-- **http://key-proxy:8080/headers:** HTTP 200
-  Reflected `Authorization` header: `Bearer blog-demo-not-a-real-key`
-- **https://example.com:** `URLError: <urlopen error [Errno 101] Network is unreachable>`
-Sandbox stopped: sb-01M7KHWH349XYJF7DB3RPQGYPR; exit=137
+- **`http://key-proxy:8080/headers`**: Returned **200 OK**:
+  ```json
+  {
+    "headers": {
+      "Accept-Encoding": "identity",
+      "Authorization": "Bearer blog-demo-not-a-real-key",
+      "Content-Type": "application/json",
+      "Host": "httpbin.org",
+      "User-Agent": "Python-urllib/3.13"
+    }
+  }
+  ```
+- **`https://example.com`**: Fetch failed—could not connect to `example.com:443`.
+- **`BLOG_DEMO_KEY`**: Not set.
+Sandbox stopped: sb-01M7MP75MYM2XBEFYFNFT0HC10; exit=137

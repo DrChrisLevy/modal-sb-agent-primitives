@@ -27,7 +27,7 @@ else:
 # region: sandbox
 def create_sandbox():
     app = modal.App.lookup("blog-s3-sidecar", create_if_missing=True)
-    image = modal.Image.debian_slim(python_version="3.13").apt_install("git")
+    image = modal.Image.debian_slim(python_version="3.13").apt_install("git", "curl")
     proxy_image = image.add_local_file(
         Path(__file__).with_name("key_proxy.py"), "/key_proxy.py", copy=True,
     ).build(app)
