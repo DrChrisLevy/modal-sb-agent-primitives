@@ -68,8 +68,8 @@ def run(sandbox, task):
     process = sandbox.exec("opencode", "run", task, timeout=360)
     process.stdin.write_eof()
     process.stdin.drain()
-    print(process.stdout.read(), end="", flush=True)
     print(process.stderr.read(), end="", flush=True)
+    print(process.stdout.read(), end="", flush=True)
     assert process.wait() == 0, "OpenCode failed"
 
 

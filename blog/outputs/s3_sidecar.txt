@@ -1,30 +1,16 @@
-Sandbox: sb-01M7KB92PJ58PVNSYNHNFYXPZ0
-bash: exit=127
-bash: line 1: curl: command not found
-bash: exit=127
-bash: line 1: curl: command not found
+Sandbox: sb-01M7KHWH349XYJF7DB3RPQGYPR
 bash: exit=0
 BLOG_DEMO_KEY is not set
-bash: exit=0
-Status: 200
-…
-bash: exit=1
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.13/urllib/request.py", line 1331, in do_open
-…
 
-- **`http://key-proxy:8080/headers`** — **200 OK**
-  ```json
-  {
-    "headers": {
-      "Accept-Encoding": "identity",
-      "Authorization": "Bearer blog-demo-not-a-real-key",
-      "Content-Type": "application/json",
-      "Host": "httpbin.org",
-      "User-Agent": "Python-urllib/3.13"
-    }
-  }
-  ```
-- **`https://example.com`** — Failed: `Network is unreachable`.
-- **`BLOG_DEMO_KEY`** — Not set.
-Sandbox stopped: sb-01M7KB92PJ58PVNSYNHNFYXPZ0; exit=137
+Fetching http://key-proxy:8080/headers
+Status: 200
+Reflected Authorization header: Bearer blog-demo-not-a-real-key
+
+Fetching https://example.com
+URLError: <urlopen error [Errno 101] Network is unreachable>
+
+- **BLOG_DEMO_KEY:** Not set.
+- **http://key-proxy:8080/headers:** HTTP 200
+  Reflected `Authorization` header: `Bearer blog-demo-not-a-real-key`
+- **https://example.com:** `URLError: <urlopen error [Errno 101] Network is unreachable>`
+Sandbox stopped: sb-01M7KHWH349XYJF7DB3RPQGYPR; exit=137

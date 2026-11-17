@@ -1,3 +1,13 @@
+← Write fizzbuzz.py
+Created file successfully: fizzbuzz.py
+$ python3 fizzbuzz.py
+1
+2
+Fizz
+4
+Buzz
+…
+
 Created and ran `fizzbuzz.py`:
 
 ```text
@@ -17,14 +27,4 @@ Fizz
 14
 FizzBuzz
 ```
-← Write fizzbuzz.py
-Created file successfully: fizzbuzz.py
-$ python3 fizzbuzz.py
-1
-2
-Fizz
-4
-Buzz
-Fizz
-…
 Sandbox and Sidecar stopped
